@@ -55,7 +55,7 @@ Your browser does not support the audio element.
     var camera;
     var DEBUG = true;
 
-    var ANIMATION_MODE = ANIMATION.REGULAR;
+    var ANIMATION_MODE = ANIMATION.LOOK_AROUND;
 
     function init() {
 
@@ -102,7 +102,7 @@ Your browser does not support the audio element.
         spotLight.intensity = 2;
         scene.add(spotLight);
 
-
+        var rollControls;
         // model from http://www.thingiverse.com/thing:69709
         var loader = new THREE.ColladaLoader();
     
@@ -121,15 +121,21 @@ Your browser does not support the audio element.
 
             tweenHeartBeatUp.start();
             scene.add(mesh);
+
+            rollControls = new THREE.RollControls(camera);
+
+            rollControls.movementSpeed = 1;
+            rollControls.lookSpeed = 1;
+
         });
 
-        // var flyControls = new THREE.FlyControls(camera);
+        var flyControls = new THREE.FlyControls(camera);
 
-        // flyControls.movementSpeed = 10;
-        // flyControls.domElement = document.querySelector("#WebGL-output");
-        // flyControls.rollSpeed = Math.PI / 24;
-        // flyControls.autoForward = false;
-        // flyControls.dragToLook = true;
+        flyControls.movementSpeed = 10;
+        flyControls.domElement = document.querySelector("#WebGL-output");
+        flyControls.rollSpeed = Math.PI / 24;
+        flyControls.autoForward = false;
+        flyControls.dragToLook = true;
 
         // create a render and set the size
         webGLRenderer = new THREE.WebGLRenderer();
@@ -145,21 +151,17 @@ Your browser does not support the audio element.
 
        
 
-//         var trackballControls = new THREE.TrackballControls(camera, webGLRenderer.domElement);
-//         trackballControls.rotateSpeed = 4.0;
-//         trackballControls.zoomSpeed = 1.0;
-//         trackballControls.panSpeed = 1.0;
-// //        trackballControls.noZoom=false;
-// //        trackballControls.noPan=false;
-//         trackballControls.staticMoving = true;
-//        //trackballControls.dynamicDampingFactor=0.3;
+        var trackballControls = new THREE.TrackballControls(camera, webGLRenderer.domElement);
+        trackballControls.rotateSpeed = 4.0;
+        trackballControls.zoomSpeed = 1.0;
+        trackballControls.panSpeed = 1.0;
+//        trackballControls.noZoom=false;
+//        trackballControls.noPan=false;
+        trackballControls.staticMoving = true;
+       //trackballControls.dynamicDampingFactor=0.3;
 
 
-        var rollControls;
-        //rollControls = new THREE.RollControls(camera);
 
-        //rollControls.movementSpeed = 1;
-        //rollControls.lookSpeed = 1;
 
 
 
@@ -703,10 +705,10 @@ Your browser does not support the audio element.
              var delta = clock.getDelta();
 
              if(DEBUG) {
-               // flyControls.update(delta);
-               // webGLRenderer.clear();
+                flyControls.update(delta);
+                webGLRenderer.clear();
 
-               // trackballControls.update(delta);
+                trackballControls.update(delta);
             } 
 
             switch (ANIMATION_MODE) {
