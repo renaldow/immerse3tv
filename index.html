@@ -55,7 +55,7 @@ Your browser does not support the audio element.
     var camera;
     var DEBUG = true;
 
-    var ANIMATION_MODE = ANIMATION.LOOK_AROUND;
+    var ANIMATION_MODE = ANIMATION.REGULAR;
 
     function init() {
 
@@ -96,6 +96,15 @@ Your browser does not support the audio element.
 
         //camera.lookAt(new THREE.Vector3(0, 20, 0));
 
+                // create a render and set the size
+        webGLRenderer = new THREE.WebGLRenderer();
+        webGLRenderer.setClearColor(new THREE.Color("#990000", 1.0));
+        webGLRenderer.setSize(window.innerWidth, window.innerHeight);
+        webGLRenderer.shadowMapEnabled = true;
+
+         // add the output of the renderer to the html element
+        document.getElementById("WebGL-output").appendChild(webGLRenderer.domElement);
+
         // add spotlight for the shadows
         var spotLight = new THREE.SpotLight(0xffffff);
         spotLight.position.set(150, 150, 150);
@@ -103,6 +112,8 @@ Your browser does not support the audio element.
         scene.add(spotLight);
 
         var rollControls;
+        var trackballControls;
+        var flyControls;
         // model from http://www.thingiverse.com/thing:69709
         var loader = new THREE.ColladaLoader();
     
@@ -122,42 +133,47 @@ Your browser does not support the audio element.
             tweenHeartBeatUp.start();
             scene.add(mesh);
 
-            rollControls = new THREE.RollControls(camera);
+    //          trackballControls = new THREE.TrackballControls(camera, webGLRenderer.domElement);
+    //         trackballControls.rotateSpeed = 4.0;
+    //         trackballControls.zoomSpeed = 1.0;
+    //         trackballControls.panSpeed = 1.0;
+    // //        trackballControls.noZoom=false;
+    // //        trackballControls.noPan=false;
+    //         trackballControls.staticMoving = true;
 
-            rollControls.movementSpeed = 1;
-            rollControls.lookSpeed = 1;
+            // rollControls = new THREE.RollControls(camera);
+
+            // rollControls.movementSpeed = 1;
+            // rollControls.lookSpeed = 1;
+
+            //  flyControls = new THREE.FlyControls(camera);
+
+            // flyControls.movementSpeed = 10;
+            // flyControls.domElement = document.querySelector("#WebGL-output");
+            // flyControls.rollSpeed = Math.PI / 24;
+            // flyControls.autoForward = false;
+            // flyControls.dragToLook = true;
+
+            //console.log("Rolls Control")
+                    //console.dir(rollControls);
 
         });
 
-        var flyControls = new THREE.FlyControls(camera);
 
-        flyControls.movementSpeed = 10;
-        flyControls.domElement = document.querySelector("#WebGL-output");
-        flyControls.rollSpeed = Math.PI / 24;
-        flyControls.autoForward = false;
-        flyControls.dragToLook = true;
 
-        // create a render and set the size
-        webGLRenderer = new THREE.WebGLRenderer();
-        webGLRenderer.setClearColor(new THREE.Color("#990000", 1.0));
-        webGLRenderer.setSize(window.innerWidth, window.innerHeight);
-        webGLRenderer.shadowMapEnabled = true;
 
-         // add the output of the renderer to the html element
-        document.getElementById("WebGL-output").appendChild(webGLRenderer.domElement);
 
         document.addEventListener('keydown', onDocumentKeyDown, false);
+        document.addEventListener('mousemove', onDocumentMouseMove, false);
+
+        
+
+
 
 
        
 
-        var trackballControls = new THREE.TrackballControls(camera, webGLRenderer.domElement);
-        trackballControls.rotateSpeed = 4.0;
-        trackballControls.zoomSpeed = 1.0;
-        trackballControls.panSpeed = 1.0;
-//        trackballControls.noZoom=false;
-//        trackballControls.noPan=false;
-        trackballControls.staticMoving = true;
+
        //trackballControls.dynamicDampingFactor=0.3;
 
 
@@ -185,6 +201,8 @@ Your browser does not support the audio element.
 
             this.followSphere = false;
 
+            this.rollsmode = false;
+
         };
 
         var gui = new dat.GUI();
@@ -207,7 +225,18 @@ Your browser does not support the audio element.
 
             gui.add(controls, 'ballZ', -1000, 1000);
 
+            gui.add(controls, 'rollsmode').onChange(function (e) {
+
+                if(e) { 
+                    ANIMATION_MODE = ANIMATION.LOOK_AROUND;
+                } else {
+                    ANIMATION_MODE = ANIMATION.REGULAR;
+                }
+
+            });
+
             gui.add(controls, 'wireframe1');
+
             gui.add(controls, 'wireframe2');
             gui.add(controls, 'wireframe3');
 
@@ -549,6 +578,88 @@ Your browser does not support the audio element.
             //runAnimation();
             }
 
+            if(ANIMATION_MODE == ANIMATION.LOOK_AROUND) { 
+
+                var step = 10;
+                var UpDown = sphereCameraFollow.position.y;
+                var leftRight = sphereCameraFollow.position.z;
+            
+
+                if (event.keyCode == 38 && UpDown <= 30) { //UP
+                    
+                        //ANIMATION_MODE = ANIMATION.LOOK_AROUND;
+                        var yMoveUp = sphereCameraFollow.position.y + step;
+
+                        var cameraPosStart = { Px:sphereCameraFollow.position.x , Py:sphereCameraFollow.position.y, Pz:sphereCameraFollow.position.z}
+                        var cameraPosEnd = { Px:sphereCameraFollow.position.x , Py: yMoveUp, Pz:sphereCameraFollow.position.z }
+
+                        var cameratween = tweenToLocationSphere(cameraPosStart, cameraPosEnd, 1000, ANIMATION_MODE);
+
+
+                        //sphereCameraFollow.position.y += step;
+                        UpDown = yMoveUp;
+
+                        cameratween.start();
+                                     
+                    }
+                    else if( event.keyCode == 40 && UpDown >= -5) { // DOWN
+                        //ANIMATION_MODE = ANIMATION.REGULAR;
+
+                        var yMoveDown = sphereCameraFollow.position.y - step;
+
+                        var cameraPosStart = { Px:sphereCameraFollow.position.x , Py:sphereCameraFollow.position.y, Pz:sphereCameraFollow.position.z}
+                        var cameraPosEnd = { Px:sphereCameraFollow.position.x , Py: yMoveDown, Pz:sphereCameraFollow.position.z }
+
+                        var cameratween = tweenToLocationSphere(cameraPosStart, cameraPosEnd, 1000, ANIMATION_MODE);
+
+
+                        //sphereCameraFollow.position.y += step;
+                        UpDown = yMoveDown;
+
+                        cameratween.start();
+
+                    }
+                    else if( event.keyCode == 37 && leftRight >= -20) { // LEFT
+                        //ANIMATION_MODE = ANIMATION.REGULAR;
+
+                        var zMoveLeft = sphereCameraFollow.position.z - step;
+
+                        var cameraPosStart = { Px:sphereCameraFollow.position.x , Py:sphereCameraFollow.position.y, Pz:sphereCameraFollow.position.z}
+                        var cameraPosEnd = { Px:sphereCameraFollow.position.x , Py: sphereCameraFollow.position.y, Pz: zMoveLeft }
+
+                        var cameratween = tweenToLocationSphere(cameraPosStart, cameraPosEnd, 1000, ANIMATION_MODE);
+
+
+                        //sphereCameraFollow.position.y += step;
+                        leftRight = zMoveLeft;
+
+                        cameratween.start();
+
+
+                    }
+                    else if( event.keyCode == 39 && leftRight <= 50) { // RIGHT
+                        //ANIMATION_MODE = ANIMATION.REGULAR;
+
+                        var zMoveRigt = sphereCameraFollow.position.z + step;
+
+                        var cameraPosStart = { Px:sphereCameraFollow.position.x , Py:sphereCameraFollow.position.y, Pz:sphereCameraFollow.position.z}
+                        var cameraPosEnd = { Px:sphereCameraFollow.position.x , Py: sphereCameraFollow.position.y, Pz: zMoveRigt }
+
+                        var cameratween = tweenToLocationSphere(cameraPosStart, cameraPosEnd, 1000, ANIMATION_MODE);
+
+
+                        //sphereCameraFollow.position.y += step;
+                        leftRight = zMoveRigt;
+
+                        cameratween.start();
+                    }
+
+                
+            }
+
+
+            
+
             console.log("Camera Px:" + Number(camera.position.x).toFixed(2) + ", Py:" + Number(camera.position.y).toFixed(2) + ", Pz:" + Number(camera.position.z).toFixed(2) + ",  Rx:" + Number(camera.rotation.x).toFixed(2) + ",  Ry:" + Number(camera.rotation.y).toFixed(2) + ", Rz:" + Number(camera.rotation.z).toFixed(2));
 
             // console.dir(sphere);
@@ -558,6 +669,25 @@ Your browser does not support the audio element.
             // console.dir(camera);
 
             // console.dir(spotLight);
+        }
+
+        function onDocumentMouseMove( event ) {
+
+            var vector = new THREE.Vector3(( event.clientX / window.innerWidth ) * 2 - 1, -( event.clientY / window.innerHeight ) * 2 + 1, 0.5);
+
+            vector = vector.unproject(camera);
+
+            //camera.lookAt(vector);
+
+            // sphereCameraFollow.position.x = vector.x;
+            // sphereCameraFollow.position.y = vector.y;
+            // sphereCameraFollow.position.z = vector.z;
+
+
+            console.log(vector.x + "," + vector.y + "," + vector.z)
+
+            //console.dir(vector);
+
         }
 
         function tweenToLocation(coordsPosStart, coordsPosEnd, duration, mode) {
@@ -704,11 +834,19 @@ Your browser does not support the audio element.
 
              var delta = clock.getDelta();
 
-             if(DEBUG) {
-                flyControls.update(delta);
-                webGLRenderer.clear();
+             // if(flyControls) { 
+             // webGLRenderer.clear();
+             //    rollControls.update(delta); }
 
-                trackballControls.update(delta);
+             if(DEBUG && trackballControls) {
+                
+                //webGLRenderer.clear();
+                //flyControls.update(delta);
+
+               
+                    //trackballControls.update(delta);
+                
+                
             } 
 
             switch (ANIMATION_MODE) {
@@ -720,10 +858,8 @@ Your browser does not support the audio element.
 
                    break; 
                 case ANIMATION.LOOK_AROUND:
-
-                    if (rollControls) {
-                        rollControls.update(delta);
-                    }
+                    camera.lookAt(sphereCameraFollow.position); 
+                    
 
                     //camera.position.set(camera.position.x, camera.position.y, camera.position.z)
                     
