@@ -91,7 +91,7 @@
         }
 
         .seconddirections {
-            width: 280px;
+            width: 370px;
             height: 70px;
             position: absolute;
             background-color: #691717;
@@ -103,7 +103,9 @@
             font-size: 20px;
             text-align: center;
             box-shadow: 8px 9px 20px rgba(88, 85, 85, 0.49);
-        }
+            opacity: 0;
+        
+            }
 
     </style>
 </head>
@@ -129,9 +131,9 @@
 
 </div>
 
-<div class="seconddirections">
+<div class="seconddirections" id="second-directions">
     
-   Select the Left Ventricle
+   Use mouse pointer to look around.
     
 </div>
 
@@ -140,10 +142,10 @@
 <div id="WebGL-output">
 </div>
 
-<!-- <audio loop="loop" autoplay="autoplay">
+<audio loop="loop" autoplay="autoplay">
   <source src="assets/audio/heartSound.mp3" type="audio/mpeg">
 Your browser does not support the audio element.
-</audio> -->
+</audio>
 
 <!-- Javascript code that runs our Three.js examples -->
 <script type="text/javascript">
@@ -183,8 +185,8 @@ Your browser does not support the audio element.
         camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 
                 //show axes in the screen
-        var axes = new THREE.AxisHelper(80);
-        scene.add(axes);
+        // var axes = new THREE.AxisHelper(80);
+        // scene.add(axes);
 
         // position and point the camera to the center of the scene
         camera.position.x = 30;
@@ -233,7 +235,7 @@ Your browser does not support the audio element.
 
             mesh.visible = true;
 
-            //tweenHeartBeatUp.start();
+            tweenHeartBeatUp.start();
             scene.add(mesh);
 
              trackballControls = new THREE.TrackballControls(camera, webGLRenderer.domElement);
@@ -418,7 +420,7 @@ Your browser does not support the audio element.
         curveObject.rotation.set( 0, 11, 0 );
         curveObject.scale.set( 1, 1, 1 );
        
-        scene.add( curveObject );
+       // scene.add( curveObject );
 
 
 
@@ -452,9 +454,9 @@ Your browser does not support the audio element.
 
             this.cameratween = false;
 
-            this.wireframe1 = true;
-            this.wireframe2 = true;
-            this.wireframe3 = true;
+            this.wireframe1 = false;
+            this.wireframe2 = false;
+            this.wireframe3 = false;
 
             this.followSphere = false;
 
@@ -559,7 +561,7 @@ Your browser does not support the audio element.
 
 
         gui.width = 300;
-        //dat.GUI.toggleHide()
+        dat.GUI.toggleHide()
 
         //console.dir(gui);
 
@@ -584,7 +586,7 @@ Your browser does not support the audio element.
         sphere2.position.y = 3;
         sphere2.position.z = -10;
 
-        sphere2.visible = true;
+        sphere2.visible = false;
         sphere2.intensity = 1.5;
 
 
@@ -596,7 +598,7 @@ Your browser does not support the audio element.
         sphereCameraFollow.position.y = 0;
         sphereCameraFollow.position.z = 0;
 
-        sphereCameraFollow.visible = true;
+        sphereCameraFollow.visible = false;
 
         //camera.lookAt(sphereCameraFollow.position);  
 
@@ -676,12 +678,12 @@ Your browser does not support the audio element.
 
 
 
-                tween1.chain(tween2);
+                // tween1.chain(tween2);
 
 
-                tween1.start();
+                // tween1.start();
 
-                return;
+                // return;
 
 
                 var coordsPosStart = coordsPosEnd;
@@ -705,6 +707,10 @@ Your browser does not support the audio element.
                 var tween5Sphere = tweenToLocationSphere(coordsSpherePosStart, coordsSpherePosEnd, 1000, ANIMATION.REGULAR);
 
                 
+
+
+
+
                 // var coordsCamPosStart = coordsCamPosEnd;
                 // var coordsCamPosEnd = { Px: -4.35, Py: 12.35, Pz:-14.17};
 
@@ -725,6 +731,18 @@ Your browser does not support the audio element.
                 tween4.chain(tween5, tween5Sphere);
 
                 tween1.start();
+
+                tween5Sphere.onComplete(function() { 
+
+                    ANIMATION_MODE = ANIMATION.LOOK_AROUND;
+
+                    TweenMax.to(".seconddirections", 0.5, {css: {opacity: 1}});
+
+
+                    // TweenMax.to($mainpage, .3, {css: {opacity: 1}, delay: mainPageDelay, onComplete:setFont});
+
+
+                });
 
 
                 // coordsPosStart = coordsPosEnd;
@@ -1170,7 +1188,7 @@ Your browser does not support the audio element.
                 //flyControls.update(delta);
 
                
-                    trackballControls.update(delta);
+                   // trackballControls.update(delta);
                 
                 
             } 
