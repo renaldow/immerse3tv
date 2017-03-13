@@ -30,20 +30,73 @@
             margin: 0;
             overflow: hidden;
         }
+
+        .firstdirections {
+            margin-top: 5%;
+            margin-left: 5%;
+            width: 370px;
+            height: 440px;
+            border-radius: 3px;
+            position: absolute;
+            background-color: white;
+            display: inline;
+            box-shadow: 8px 9px 20px rgba(88, 85, 85, 0.49);
+        }
+
+        .heartLabel {
+            text-align: center;
+            vertical-align: middle;
+            height: 40px;
+            background-color: #44abda;
+            line-height: 40px;
+            font-family: avenir;
+            font-weight: bold;
+            color: #ffffff;
+        }
+
+        .heartInstructions {
+            height: 100px;
+            padding: 20px 5px 20px 0px;
+            font-size: 20px;
+            color: #44abda;
+        }
+
+        ol li { 
+            padding:0 0 0 0px;
+            margin:0 0 20px 0px;
+        }
+
     </style>
 </head>
 <body>
 
 <div id="Stats-output">
+
+<div class="firstdirections">
+    
+    <div class="heartLabel">Directions</div>
+
+    <div class="heartInstructions">
+  
+        <ol>
+          <li>As the heart rotates, you'll be asked various questions.</li>
+          <li>Get a question correct and gain 3 points each time.</li>
+          <li>Get a question wrong and lose 1 point.</li>
+        </ol>  
+          
+    </div>
+
+</div>
+
 </div>
 <!-- Div which will hold the Output -->
 <div id="WebGL-output">
 </div>
 
-<audio loop="loop" autoplay="autoplay">
+<!-- <audio loop="loop" autoplay="autoplay">
   <source src="assets/audio/heartSound.mp3" type="audio/mpeg">
 Your browser does not support the audio element.
-</audio>
+</audio> -->
 
 <!-- Javascript code that runs our Three.js examples -->
 <script type="text/javascript">
@@ -580,7 +633,7 @@ Your browser does not support the audio element.
 
             if(ANIMATION_MODE == ANIMATION.LOOK_AROUND) { 
 
-                var step = 10;
+                var step = 5;
                 var UpDown = sphereCameraFollow.position.y;
                 var leftRight = sphereCameraFollow.position.z;
             
@@ -673,9 +726,9 @@ Your browser does not support the audio element.
 
         function onDocumentMouseMove( event ) {
 
-            var vector = new THREE.Vector3(( event.clientX / window.innerWidth ) * 2 - 1, -( event.clientY / window.innerHeight ) * 2 + 1, 0.5);
+            //var vector = new THREE.Vector3(( event.clientX / window.innerWidth ) * 2 - 1, -( event.clientY / window.innerHeight ) * 2 + 1, 0.5);
 
-            vector = vector.unproject(camera);
+            //vector = vector.unproject(camera);
 
             //camera.lookAt(vector);
 
@@ -683,10 +736,43 @@ Your browser does not support the audio element.
             // sphereCameraFollow.position.y = vector.y;
             // sphereCameraFollow.position.z = vector.z;
 
+                var xCord = event.clientX;
+                var yCord = event.clientY;
 
-            console.log(vector.x + "," + vector.y + "," + vector.z)
+                var xPercent = xCord/window.innerWidth;
+                var yPercent = yCord/window.innerHeight;
 
-            //console.dir(vector);
+
+                //var step = 5;
+                var UpDown = sphereCameraFollow.position.y;
+                var leftRight = sphereCameraFollow.position.z;
+
+                var yUpperLimit = 30;
+                var yRange = 35;
+                var zLowerLimit = -20;
+                var zRange = 70;
+                    
+                //ANIMATION_MODE = ANIMATION.LOOK_AROUND;
+                var positionYRange = yPercent * yRange;
+                var positionY = yUpperLimit - positionYRange;
+                var positionZRange = xPercent * zRange;
+                var positionZ = zLowerLimit + positionZRange;
+
+
+                if(ANIMATION_MODE == ANIMATION.LOOK_AROUND) { 
+
+                    var cameraPosStart = { Px:sphereCameraFollow.position.x , Py:sphereCameraFollow.position.y, Pz:sphereCameraFollow.position.z }
+
+                    var cameraPosEnd = { Px:sphereCameraFollow.position.x , Py: positionY, Pz:positionZ }
+
+                    var cameratween = tweenToLocationSphere(cameraPosStart, cameraPosEnd, 1000, ANIMATION_MODE);
+
+                    cameratween.start();
+                                                      
+                }
+
+
+            console.log(" positionYRange:" + positionYRange + " : positionY:" + positionY + ": positionZRange:" + positionZRange + ": positionZ:" + positionZ + ": xPercent:" + xPercent);
 
         }
 
