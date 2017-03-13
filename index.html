@@ -8,6 +8,8 @@
     <meta charset="utf-8">
             <meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 
+    <script src='http://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js'></script>
+
     <script type="text/javascript" src="libs/three.js"></script>
     <script type="text/javascript" src="libs/ColladaLoader.js"></script>
 
@@ -22,6 +24,8 @@
     <script type="text/javascript" src="libs/RollControls.js"></script>
 
     <script type="text/javascript" src="js/modes.js"></script>
+    <script src="greensock/TweenMax.min.js"></script>
+    <script src="greensock/TimelineMax.min.js"></script>
 
 
     <style>
@@ -33,13 +37,14 @@
 
         .firstdirections {
             margin-top: 5%;
-            margin-left: 5%;
-            width: 370px;
-            height: 440px;
-            border-radius: 3px;
+            margin-left: 3%;
+            width: 520px;
+            height: 280px;
+            border-radius: 33px;
             position: absolute;
             background-color: white;
             display: inline;
+            opacity: .9;
             box-shadow: 8px 9px 20px rgba(88, 85, 85, 0.49);
         }
 
@@ -47,23 +52,57 @@
             text-align: center;
             vertical-align: middle;
             height: 40px;
-            background-color: #44abda;
+            background-color: #6b1f1f;
             line-height: 40px;
             font-family: avenir;
             font-weight: bold;
             color: #ffffff;
+            font-size: 20px;
+            border-radius: 9px;
         }
 
         .heartInstructions {
             height: 100px;
-            padding: 20px 5px 20px 0px;
+            padding: 3px 5px 20px 0px;
             font-size: 20px;
-            color: #44abda;
+            color: #051e29;
         }
 
         ol li { 
             padding:0 0 0 0px;
             margin:0 0 20px 0px;
+        }
+
+        .initialStart {
+            background-color: #44dab0;
+            height: 40px;
+            width: 30%;
+            position: relative;
+            text-align: center;
+            line-height: 40px;
+            font-size: 20px;
+            font-family: avenir;
+            font-weight: bold;
+            color: white;
+            margin-left: auto;
+            margin-right: auto;
+            margin-top: 50px;
+            border-radius: 23px;
+        }
+
+        .seconddirections {
+            width: 280px;
+            height: 70px;
+            position: absolute;
+            background-color: #691717;
+            margin-left: 10%;
+            margin-top: 10%;
+            color: white;
+            line-height: 68px;
+            border-radius: 5px;
+            font-size: 20px;
+            text-align: center;
+            box-shadow: 8px 9px 20px rgba(88, 85, 85, 0.49);
         }
 
     </style>
@@ -74,18 +113,26 @@
 
 <div class="firstdirections">
     
-    <div class="heartLabel">Directions</div>
+    <div class="heartLabel">Welcome to 3D Heart!</div>
 
     <div class="heartInstructions">
   
         <ol>
-          <li>As the heart rotates, you'll be asked various questions.</li>
-          <li>Get a question correct and gain 3 points each time.</li>
+          <li>Take a trip through the heart. You'll be asked various questions.</li>
+          <li>Get a question correct and gain 3 points!</li>
           <li>Get a question wrong and lose 1 point.</li>
         </ol>  
           
     </div>
 
+    <div class="initialStart" id="initial-start"> Start </div>
+
+</div>
+
+<div class="seconddirections">
+    
+   Select the Left Ventricle
+    
 </div>
 
 </div>
@@ -117,6 +164,7 @@ Your browser does not support the audio element.
         var cameraPointZone = 0;
         var animationNotStarted = true;
 
+        initClickableDivs();
 
         // create a scene, that will hold all our elements such as objects, cameras and lights.
         scene = new THREE.Scene();
@@ -183,16 +231,18 @@ Your browser does not support the audio element.
             console.log("Sphere Follow Mesh")
             console.dir(sphereCameraFollow);
 
-            tweenHeartBeatUp.start();
+            mesh.visible = true;
+
+            //tweenHeartBeatUp.start();
             scene.add(mesh);
 
-    //          trackballControls = new THREE.TrackballControls(camera, webGLRenderer.domElement);
-    //         trackballControls.rotateSpeed = 4.0;
-    //         trackballControls.zoomSpeed = 1.0;
-    //         trackballControls.panSpeed = 1.0;
-    // //        trackballControls.noZoom=false;
-    // //        trackballControls.noPan=false;
-    //         trackballControls.staticMoving = true;
+             trackballControls = new THREE.TrackballControls(camera, webGLRenderer.domElement);
+            trackballControls.rotateSpeed = 4.0;
+            trackballControls.zoomSpeed = 1.0;
+            trackballControls.panSpeed = 1.0;
+    //        trackballControls.noZoom=false;
+    //        trackballControls.noPan=false;
+            trackballControls.staticMoving = true;
 
             // rollControls = new THREE.RollControls(camera);
 
@@ -220,11 +270,165 @@ Your browser does not support the audio element.
         document.addEventListener('mousemove', onDocumentMouseMove, false);
 
         
+        var rightAtriumOutline = new THREE.PlaneGeometry(10, 10);
+
+        texture = THREE.ImageUtils.loadTexture('assets/images/rightatrium_outline.png');
+        material = new THREE.MeshBasicMaterial({map: texture});
+        var outline = new THREE.Mesh(rightAtriumOutline, material);
+
+        outline.material.transparent = true;
+        outline.position.x = -30;
+        outline.position.y = 11;
+        outline.position.z = -1.6;
+
+        outline.scale.x = 1;
+        outline.scale.y = 1;
+        outline.scale.z = 1;
+
+        outline.rotation.x = 0;
+        outline.rotation.y = 11;
+        outline.rotation.z = 0;
+
+        console.log("Outline")
+        console.dir(outline)
+
+        //scene.add(outline);
 
 
 
+        var sqLength = 20;
 
+        var squareShape = new THREE.Shape();
+        squareShape.moveTo( 0,0 );
+        squareShape.lineTo( 0, sqLength );
+        squareShape.lineTo( sqLength, sqLength );
+        squareShape.lineTo( sqLength, 0 );
+        squareShape.lineTo( 0, 0 );
+
+
+
+        var geometrySquare = new THREE.ShapeGeometry( squareShape );
+
+        var meshSquare = new THREE.Mesh( geometrySquare, new THREE.MeshPhongMaterial( { color: 'red', side: THREE.DoubleSide } ) );
+
+        meshSquare.position.set( -28, 0, -12 );
+        meshSquare.rotation.set( 0, 11, 0 );
+        meshSquare.scale.set( 1, 1, 1 );
+
+        meshSquare.material.opacity = 0.5;
+        meshSquare.material.transparent = true;
+
+
+        //scene.add(meshSquare);
+
+        console.log("MeshSquare")
+        console.dir(meshSquare)
+
+        var californiaPts = [];
+
+                californiaPts.push( new THREE.Vector2 ( 610, 320 ) );
+                californiaPts.push( new THREE.Vector2 ( 450, 300 ) );
+                californiaPts.push( new THREE.Vector2 ( 392, 392 ) );
+                californiaPts.push( new THREE.Vector2 ( 266, 438 ) );
+                californiaPts.push( new THREE.Vector2 ( 190, 570 ) );
+                californiaPts.push( new THREE.Vector2 ( 190, 600 ) );
+                californiaPts.push( new THREE.Vector2 ( 160, 620 ) );
+                californiaPts.push( new THREE.Vector2 ( 160, 650 ) );
+          
+
+               // for( var i = 0; i < californiaPts.length; i ++ ) californiaPts[ i ].multiplyScalar( 0.25 );
+
+                var californiaShape = new THREE.Shape( californiaPts );
+
+                var geometryCalifornia = new THREE.ShapeGeometry( californiaShape );
+
+                var meshCalifornia = new THREE.Mesh( geometryCalifornia, new THREE.MeshPhongMaterial( { color: 'blue', side: THREE.DoubleSide } ) );
+
+        meshCalifornia.position.set( 0, 0, 20 );
+        meshCalifornia.rotation.set( 0, 10, 0 );
+        meshCalifornia.scale.set( 1, 1, 1 );
+
+        //meshCalifornia.material.opacity = 0.5;
+        //meshCalifornia.material.transparent = true;
+
+
+        //scene.add(meshCalifornia);
+
+
+        
+        console.log("CaliforniaMesh")
+        console.dir(californiaShape)
+
+
+        // Spline shape
+
+        var curve = new THREE.CubicBezierCurve(
+            new THREE.Vector2( -10, 0, 0 ),
+            new THREE.Vector2( -5, 15, 0 ),
+            new THREE.Vector2( 10, 15, 0 ),
+            new THREE.Vector2( 10, 0, 0 )
+        );
+
+        var splinepts = [];
+                splinepts.push( new THREE.Vector2 ( 70, 20 ) );
+                splinepts.push( new THREE.Vector2 ( 80, 90 ) );
+                splinepts.push( new THREE.Vector2 ( -30, 70 ) );
+                splinepts.push( new THREE.Vector2 ( 0, 0 ) );
+
+        // var splineShape = new THREE.Shape();
+        // splineShape.moveTo( 0, 0 );
+        // splineShape.splineThru( splinepts );
+
+
+       //var geometry = new THREE.ShapeGeometry( curve );
+
+       // var path = new THREE.Path( curve.getPoints( 50 ) );
+
+       // var geometry = path.createPointsGeometry( 50 );
+        //var material = new THREE.MeshPhongMaterial( { color: 'green', side: THREE.DoubleSide } )
+
+        // var curveObject = new THREE.Mesh( geometry, new THREE.MeshNormalMaterial( { color: 'green', side: THREE.DoubleSide } ) );
+
+
+        // Create the final object to add to the scene
+        //var curveObject =  new THREE.Mesh( geometry,  material);
+
+        var x = y = 0;
+
+        var outline = new THREE.Shape();
+
+        // fishShape.moveTo(x,y);
+        // fishShape.quadraticCurveTo(x + 50, y - 180, x + 90, y - 10);
+        // fishShape.quadraticCurveTo(x + 100, y - 10, x + 115, y - 40);
+        // fishShape.quadraticCurveTo(x + 115, y, x + 115, y + 40);
+        // fishShape.quadraticCurveTo(x + 100, y + 10, x + 90, y + 10);
+        // fishShape.quadraticCurveTo(x + 50, y + 80, 10, 40);
+
+        outline.moveTo(x,y);
+        outline.quadraticCurveTo(x - 10, y + 10, x, y + 20);
+        outline.quadraticCurveTo(x + 10, y + 10, x, y);
+
+
+
+        var geometry = new THREE.ShapeGeometry( outline );
+
+        var curveObject = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: 'green', side: THREE.DoubleSide } ) );
+
+        curveObject.position.set( -28, 0, -12 );
+        curveObject.rotation.set( 0, 11, 0 );
+        curveObject.scale.set( 1, 1, 1 );
        
+        scene.add( curveObject );
+
+
+
+        //var extrudeSettings = { amount: 8, bevelEnabled: true, bevelSegments: 2, steps: 2, bevelSize: 1, bevelThickness: 1 };
+
+        
+        //addShape( splineShape, extrudeSettings, 0x808080,  -50, -100, 0, 0, 0, 0, 1 );
+
+        console.log("curveObject")
+        console.dir(curveObject)
 
 
        //trackballControls.dynamicDampingFactor=0.3;
@@ -256,6 +460,10 @@ Your browser does not support the audio element.
 
             this.rollsmode = false;
 
+            this.planeRotX = 0;
+            this.planeRotY = 0;
+            this.planeRotZ = 0;
+
         };
 
         var gui = new dat.GUI();
@@ -277,6 +485,17 @@ Your browser does not support the audio element.
             gui.add(controls, 'ballY', -1000, 1000);
 
             gui.add(controls, 'ballZ', -1000, 1000);
+
+
+
+            gui.add(controls, 'planeRotX', -100, 100);
+
+            gui.add(controls, 'planeRotY', -100, 100);
+
+            gui.add(controls, 'planeRotZ', -100, 100);
+
+
+
 
             gui.add(controls, 'rollsmode').onChange(function (e) {
 
@@ -454,6 +673,15 @@ Your browser does not support the audio element.
                 var coordsPosEnd = { Px: -70, Py: 30, Pz:0};
 
                 var tween2 = tweenToLocation(coordsPosStart, coordsPosEnd, duration, ANIMATION.REGULAR);
+
+
+
+                tween1.chain(tween2);
+
+
+                tween1.start();
+
+                return;
 
 
                 var coordsPosStart = coordsPosEnd;
@@ -876,6 +1104,8 @@ Your browser does not support the audio element.
             //     camera.lookAt(mesh.position);
             // }
 
+            //meshSpline.geometry.verticesNeedUpdate = true;
+
             switch (cameraPointZone) {
                 case 0: //center of heart
                     
@@ -911,6 +1141,16 @@ Your browser does not support the audio element.
                     mesh.material.materials[2].wireframe = controls.wireframe3;
             }
 
+            if (curveObject ) {
+
+                // outline.rotation.x = controls.planeRotX;
+                // outline.rotation.y = controls.planeRotY;
+                // outline.rotation.z = controls.planeRotZ;
+
+                curveObject.rotation.set(controls.planeRotX,controls.planeRotY,controls.planeRotZ);
+
+            }
+
 
            
             // sphere.position.x = controls.ballX;
@@ -921,16 +1161,16 @@ Your browser does not support the audio element.
              var delta = clock.getDelta();
 
              // if(flyControls) { 
-             // webGLRenderer.clear();
-             //    rollControls.update(delta); }
+               //webGLRenderer.clear();
+               // rollControls.update(delta); }
 
              if(DEBUG && trackballControls) {
                 
-                //webGLRenderer.clear();
+                webGLRenderer.clear();
                 //flyControls.update(delta);
 
                
-                    //trackballControls.update(delta);
+                    trackballControls.update(delta);
                 
                 
             } 
@@ -979,6 +1219,86 @@ Your browser does not support the audio element.
             document.getElementById("Stats-output").appendChild(stats.domElement);
 
             return stats;
+        }
+
+        function initClickableDivs() {
+
+            var divStartButton = document.getElementById('initial-start');
+
+             divStartButton.addEventListener('click', startDivClicked, false);
+        }
+
+        function startDivClicked(event) {
+
+            runAnimation();
+
+            var divStartButton = document.getElementById('initial-start');
+
+
+            TweenMax.to(".firstdirections", 0.3, {opacity:0})
+        }
+
+        function addShape( shape, extrudeSettings, color, x, y, z, rx, ry, rz, s ) {
+
+        
+            // flat shape
+
+            var geometry = new THREE.ShapeBufferGeometry( shape );
+
+            var meshflat = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: color, side: THREE.DoubleSide } ) );
+            meshflat.position.set( x, y, z );
+            meshflat.rotation.set( rx, ry, rz );
+            meshflat.scale.set( s, s, s );
+            scene.add( meshflat );
+
+            // // extruded shape
+
+            // var geometry = new THREE.ExtrudeGeometry( shape, extrudeSettings );
+
+            // var mesh = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: color } ) );
+            // mesh.position.set( x, y, z - 75 );
+            // mesh.rotation.set( rx, ry, rz );
+            // mesh.scale.set( s, s, s );
+            // group.add( mesh );
+
+            // // lines
+
+            // shape.autoClose = true;
+            // var points = shape.createPointsGeometry();
+            // var spacedPoints = shape.createSpacedPointsGeometry( 50 );
+
+            // // solid line
+
+            // var line = new THREE.Line( points, new THREE.LineBasicMaterial( { color: color, linewidth: 3 } ) );
+            // line.position.set( x, y, z - 25 );
+            // line.rotation.set( rx, ry, rz );
+            // line.scale.set( s, s, s );
+            // group.add( line );
+
+            // // line from equidistance sampled points
+
+            // var line = new THREE.Line( spacedPoints, new THREE.LineBasicMaterial( { color: color, linewidth: 3 } ) );
+            // line.position.set( x, y, z + 25 );
+            // line.rotation.set( rx, ry, rz );
+            // line.scale.set( s, s, s );
+            // group.add( line );
+
+            // // vertices from real points
+
+            // var particles = new THREE.Points( points, new THREE.PointsMaterial( { color: color, size: 4 } ) );
+            // particles.position.set( x, y, z + 75 );
+            // particles.rotation.set( rx, ry, rz );
+            // particles.scale.set( s, s, s );
+            // group.add( particles );
+
+            // // equidistance sampled points
+
+            // var particles = new THREE.Points( spacedPoints, new THREE.PointsMaterial( { color: color, size: 4 } ) );
+            // particles.position.set( x, y, z + 125 );
+            // particles.rotation.set( rx, ry, rz );
+            // particles.scale.set( s, s, s );
+            // group.add( particles );
+
         }
     }
 
