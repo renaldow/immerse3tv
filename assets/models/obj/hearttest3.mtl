@@ -1,0 +1,33 @@
+newmtl Heart_NewSG3
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd Ventricles_diffuse.jpg
+Ni 1.00
+Ks 0.25 0.25 0.25
+Ns 48.00
+newmtl Heart_NewSG4
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd left_atrium_diffuse.jpg
+Ni 1.00
+Ks 0.21 0.21 0.21
+Ns 19.00
+newmtl Heart_NewSG5
+illum 4
+Kd 0.00 0.00 0.00
+Ka 0.00 0.00 0.00
+Tf 1.00 1.00 1.00
+map_Kd righta_atrium_diffuse.jpg
+Ni 1.00
+Ks 0.25 0.25 0.25
+Ns 48.00
+newmtl lambert2SG
+illum 4
+Kd 0.00 1.00 0.00
+Ka 0.00 0.00 0.00
+Tf 0.30 0.30 0.30
+Ni 1.00

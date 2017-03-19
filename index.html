@@ -142,10 +142,10 @@
 <div id="WebGL-output">
 </div>
 
-<audio loop="loop" autoplay="autoplay">
+<!-- <audio loop="loop" autoplay="autoplay">
   <source src="assets/audio/heartSound.mp3" type="audio/mpeg">
 Your browser does not support the audio element.
-</audio>
+</audio> -->
 
 <!-- Javascript code that runs our Three.js examples -->
 <script type="text/javascript">
@@ -156,6 +156,7 @@ Your browser does not support the audio element.
     var scene;
     var camera;
     var DEBUG = true;
+    var group;
 
     var ANIMATION_MODE = ANIMATION.REGULAR;
 
@@ -185,8 +186,8 @@ Your browser does not support the audio element.
         camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
 
                 //show axes in the screen
-        // var axes = new THREE.AxisHelper(80);
-        // scene.add(axes);
+        var axes = new THREE.AxisHelper(80);
+        scene.add(axes);
 
         // position and point the camera to the center of the scene
         camera.position.x = 30;
@@ -214,18 +215,27 @@ Your browser does not support the audio element.
         spotLight.intensity = 2;
         scene.add(spotLight);
 
+        group = new THREE.Group();
+        //group.position.y = 50;
+        scene.add( group );
+
         var rollControls;
         var trackballControls;
         var flyControls;
+        var colladaMesh;
         // model from http://www.thingiverse.com/thing:69709
         var loader = new THREE.ColladaLoader();
     
          loader.load("assets/models/dae/FinalHeart.dae", function (result) {
-            mesh = result.scene.children[2].children[0].clone();
-            mesh.scale.set(4, 4, 4);
+
+            colladaMesh = result.scene.children[2].children[0].clone();
+            colladaMesh.scale.set(4, 4, 4);
+
+            console.log("result")
+            console.dir(result.scene)
 
             console.log("Heart Mesh")
-            console.dir(mesh);
+            console.dir(colladaMesh);
 
             console.log("Camera Mesh")
             console.dir(camera);
@@ -233,10 +243,11 @@ Your browser does not support the audio element.
             console.log("Sphere Follow Mesh")
             console.dir(sphereCameraFollow);
 
-            mesh.visible = true;
+            colladaMesh.visible = true;
 
-            tweenHeartBeatUp.start();
-            scene.add(mesh);
+            group.add ( colladaMesh );
+            
+            //scene.add(colladaMesh);
 
              trackballControls = new THREE.TrackballControls(camera, webGLRenderer.domElement);
             trackballControls.rotateSpeed = 4.0;
@@ -261,6 +272,8 @@ Your browser does not support the audio element.
 
             //console.log("Rolls Control")
                     //console.dir(rollControls);
+
+            tweenHeartBeatUp.start();
 
         });
 
@@ -416,11 +429,11 @@ Your browser does not support the audio element.
 
         var curveObject = new THREE.Mesh( geometry, new THREE.MeshPhongMaterial( { color: 'green', side: THREE.DoubleSide } ) );
 
-        curveObject.position.set( -28, 0, -12 );
-        curveObject.rotation.set( 0, 11, 0 );
+        curveObject.position.set( 0, 0, 20 );
+        curveObject.rotation.set( 0, 0, 0 );
         curveObject.scale.set( 1, 1, 1 );
        
-       // scene.add( curveObject );
+        group.add( curveObject );
 
 
 
@@ -431,6 +444,10 @@ Your browser does not support the audio element.
 
         console.log("curveObject")
         console.dir(curveObject)
+
+        console.log("groupObject")
+        console.dir(group)
+        
 
 
        //trackballControls.dynamicDampingFactor=0.3;
@@ -462,9 +479,6 @@ Your browser does not support the audio element.
 
             this.rollsmode = false;
 
-            this.planeRotX = 0;
-            this.planeRotY = 0;
-            this.planeRotZ = 0;
 
         };
 
@@ -490,14 +504,10 @@ Your browser does not support the audio element.
 
 
 
-            gui.add(controls, 'planeRotX', -100, 100);
 
-            gui.add(controls, 'planeRotY', -100, 100);
-
-            gui.add(controls, 'planeRotZ', -100, 100);
-
-
-
+            gui.add(controls, 'intensity', 0, 3).onChange(function (e) {
+                pointLight.intensity = e;
+            });
 
             gui.add(controls, 'rollsmode').onChange(function (e) {
 
@@ -622,11 +632,11 @@ Your browser does not support the audio element.
         //console.dir(sphere);
         
 
-        var sizeSrc = {size: 4};
-        var tweenHeartBeatUp = new TWEEN.Tween(sizeSrc).to({size: 4.5}, 500);
+        var sizeSrc = {size: 1};
+        var tweenHeartBeatUp = new TWEEN.Tween(sizeSrc).to({size: 1.1}, 500);
         tweenHeartBeatUp.easing(TWEEN.Easing.Sinusoidal.InOut);
 
-        var tweenHeartBeatDown = new TWEEN.Tween(sizeSrc).to({size: 4}, 500);
+        var tweenHeartBeatDown = new TWEEN.Tween(sizeSrc).to({size: 1}, 500);
         tweenHeartBeatDown.easing(TWEEN.Easing.Sinusoidal.InOut);
 
         tweenHeartBeatUp.chain(tweenHeartBeatDown);
@@ -636,7 +646,7 @@ Your browser does not support the audio element.
             var count = 0;
             var size = this.size;
 
-            mesh.scale.set(size, size, size);
+            group.scale.set(size, size, size);
         };
 
         tweenHeartBeatUp.onUpdate(onUpdate);
@@ -670,6 +680,13 @@ Your browser does not support the audio element.
 
                 var tween1 = tweenToLocation(coordsPosStart, coordsPosEnd, duration, ANIMATION.REGULAR);
 
+                // tween1.chain(tween2);
+
+
+                tween1.start();
+
+                return;
+
 
                 var coordsPosStart = coordsPosEnd;
                 var coordsPosEnd = { Px: -70, Py: 30, Pz:0};
@@ -678,12 +695,7 @@ Your browser does not support the audio element.
 
 
 
-                // tween1.chain(tween2);
-
-
-                // tween1.start();
-
-                // return;
+                
 
 
                 var coordsPosStart = coordsPosEnd;
@@ -1041,7 +1053,7 @@ Your browser does not support the audio element.
                     console.log("Camera: Px:" + this.Px + " Py:" + this.Py + " Pz:" + this.Pz);
 
                     console.log("Heart Mesh")
-                    console.dir(mesh);
+                    console.dir(colladaMesh);
 
                     console.log("Camera Mesh")
                     console.dir(camera);
@@ -1076,7 +1088,7 @@ Your browser does not support the audio element.
                     console.log("Sphere: Px:" + this.Px + " Py:" + this.Py + " Pz:" + this.Pz);
 
                     console.log("Heart Mesh")
-                    console.dir(mesh);
+                    console.dir(colladaMesh);
 
                     console.log("Camera Mesh")
                     console.dir(camera);
@@ -1127,9 +1139,9 @@ Your browser does not support the audio element.
             switch (cameraPointZone) {
                 case 0: //center of heart
                     
-                    if(mesh && controls.disableRotation) {
-                        //camera.lookAt(mesh.position);
-                    }
+                    // if(mesh && controls.disableRotation) {
+                    //     //camera.lookAt(mesh.position);
+                    // }
 
                     spotLight.target = scene;
 
@@ -1151,12 +1163,12 @@ Your browser does not support the audio element.
 
            
 
-            if (mesh) {
+            if ( colladaMesh ) {
                 //   mesh.rotation.y+=0.006;
 
-                    mesh.material.materials[0].wireframe = controls.wireframe1;
-                    mesh.material.materials[1].wireframe = controls.wireframe2;
-                    mesh.material.materials[2].wireframe = controls.wireframe3;
+                    //colladaMesh.material.materials[0].wireframe = controls.wireframe1;
+                    //colladaMesh.material.materials[1].wireframe = controls.wireframe2;
+                    //colladaMesh.material.materials[2].wireframe = controls.wireframe3;
             }
 
             if (curveObject ) {
@@ -1188,7 +1200,7 @@ Your browser does not support the audio element.
                 //flyControls.update(delta);
 
                
-                   // trackballControls.update(delta);
+                    trackballControls.update(delta);
                 
                 
             } 
