@@ -27,6 +27,8 @@
     <script src="greensock/TweenMax.min.js"></script>
     <script src="greensock/TimelineMax.min.js"></script>
 
+    <script type="text/javascript" src="../libs/Projector.js"></script>
+
 
     <style>
         body {
@@ -224,10 +226,14 @@ Your browser does not support the audio element.
         var flyControls;
         var colladaMesh;
         var colladaRightVentricleHighlight;
+        var colladaLeftVentricleHighlight;
+        var rightVentricleMesh;
+        var leftVentricleMesh;
+
         // model from http://www.thingiverse.com/thing:69709
         var loader = new THREE.ColladaLoader();
     
-        loader.load("assets/models/dae/heartbeat16.dae", function (result) {
+        loader.load("assets/models/dae/heartbeat17.dae", function (result) {
 
 
             console.log("result")
@@ -265,6 +271,17 @@ Your browser does not support the audio element.
 
             colladaMesh.material.materials[2].normalScale = new THREE.Vector2( 1, 1 );
 
+            rightVentricleMesh = result.scene.children[1];
+
+            leftVentricleMesh = result.scene.children[3];
+
+
+            console.log("rightVentricleMesh")
+            console.dir(rightVentricleMesh)
+
+
+            console.log("leftVentricleMesh")
+            console.dir(leftVentricleMesh)
 
 
             console.log("materials")
@@ -290,6 +307,7 @@ Your browser does not support the audio element.
             // RIGHT
             colladaRightVentricleHighlight = result.scene.children[1].children[0].clone();
             colladaRightVentricleHighlight.scale.set(4, 4, 4);
+            colladaRightVentricleHighlight.material.opacity = 0;
 
             colladaRightVentricleHighlight.visible = true;
 
@@ -303,6 +321,7 @@ Your browser does not support the audio element.
             // LEFT
             colladaLeftVentricleHighlight = result.scene.children[3].children[0].clone();
             colladaLeftVentricleHighlight.scale.set(4, 4, 4);
+            colladaLeftVentricleHighlight.material.opacity = 0;
 
             colladaLeftVentricleHighlight.visible = true;
 
@@ -345,7 +364,7 @@ Your browser does not support the audio element.
 
 
 
-
+        var projector = new THREE.Projector();
         document.addEventListener('keydown', onDocumentKeyDown, false);
         document.addEventListener('mousemove', onDocumentMouseMove, false);
 
@@ -812,6 +831,25 @@ Your browser does not support the audio element.
             camera.updateProjectionMatrix();
             webGLRenderer.setSize(window.innerWidth, window.innerHeight);
         }
+
+
+        // function onDocumentMouseDown(event) {
+
+        //     var vector = new THREE.Vector3(( event.clientX / window.innerWidth ) * 2 - 1, -( event.clientY / window.innerHeight ) * 2 + 1, 0.5);
+        //     vector = vector.unproject(camera);
+
+        //     var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+
+        //     var intersects = raycaster.intersectObjects([sphere, cylinder, cube]);
+
+        //     if (intersects.length > 0) {
+
+        //         console.log(intersects[0]);
+
+        //         intersects[0].object.material.transparent = true;
+        //         intersects[0].object.material.opacity = 0.1;
+        //     }
+        // }
         
 
         function runAnimation() {
@@ -1129,6 +1167,9 @@ Your browser does not support the audio element.
 
         function onDocumentMouseMove( event ) {
 
+
+            
+
             //var vector = new THREE.Vector3(( event.clientX / window.innerWidth ) * 2 - 1, -( event.clientY / window.innerHeight ) * 2 + 1, 0.5);
 
             //vector = vector.unproject(camera);
@@ -1138,6 +1179,52 @@ Your browser does not support the audio element.
             // sphereCameraFollow.position.x = vector.x;
             // sphereCameraFollow.position.y = vector.y;
             // sphereCameraFollow.position.z = vector.z;
+
+
+            if( camera ) { 
+                    var vector = new THREE.Vector3(( event.clientX / window.innerWidth ) * 2 - 1, -( event.clientY / window.innerHeight ) * 2 + 1, 0.5);
+                    vector = vector.unproject(camera);
+
+                    var raycaster = new THREE.Raycaster(camera.position, vector.sub(camera.position).normalize());
+
+                    var intersects = raycaster.intersectObjects([colladaLeftVentricleHighlight, colladaRightVentricleHighlight]);
+
+                    if (intersects.length > 0) {
+
+                        console.log(intersects[0]);
+
+                        intersects[0].object.material.transparent = true;
+
+                        var opacityStart = { value:0 }
+                        var opacityEnd = { value:0.5 }
+
+
+                        tweenHighLightOpacity(intersects[0].object.material, opacityStart, opacityEnd, 300);
+
+                        return;
+                    }
+                   
+                    if( colladaLeftVentricleHighlight && colladaRightVentricleHighlight ) {
+
+                    var opacityStart = { value:0 }
+                    var opacityEnd = { value:0 }
+
+
+                    colladaLeftVentricleHighlight.material.transparent = true;
+                    tweenHighLightOpacity(colladaLeftVentricleHighlight.material, opacityStart, opacityEnd, 300);
+
+
+                    colladaRightVentricleHighlight.material.transparent = true;
+                    tweenHighLightOpacity(colladaRightVentricleHighlight.material, opacityStart, opacityEnd, 300);
+
+                    }
+
+            }
+            
+
+
+
+            return;
 
                 var xCord = event.clientX;
                 var yCord = event.clientY;
@@ -1249,6 +1336,25 @@ Your browser does not support the audio element.
 
 
             return tween;
+        }
+
+        function tweenHighLightOpacity(object, opacityStart, opacityEnd, duration) {
+
+            if(object.opacity == opacityEnd.value) {
+                return;
+            }
+
+
+            var tweenOpacity = new TWEEN.Tween(opacityStart).to(opacityEnd, duration);
+            tweenOpacity.easing(TWEEN.Easing.Linear.None).onUpdate(function() {
+
+            object.opacity = this.value;
+
+            });
+
+            tweenOpacity.start();
+
+            return tweenOpacity;
         }
 
         function createMesh(geom) {
